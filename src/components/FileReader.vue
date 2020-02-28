@@ -1,5 +1,5 @@
 <template>
-  <div class="container" >
+  <div class="container">
     <div class="row flex" v-show="combinationCounter!=0">
       <p>
         CharactersNo | N =
@@ -9,7 +9,9 @@
         Number of command sets | K =
         <b>{{ k_arrays }}</b>
       </p>
-      <p ><b>Correct combinations: {{combinationCounter}}</b></p>
+      <p>
+        <b>Correct combinations: {{combinationCounter}}</b>
+      </p>
     </div>
     <div class="row">
       <div class="col main">
@@ -28,8 +30,6 @@ export default {
   data() {
     return {
       fileName: "Choose File",
-      text: "",
-      startingArr: [],
       n_characters: null,
       k_arrays: null,
       combinationCounter: 0
@@ -42,28 +42,37 @@ export default {
       let reader = new FileReader();
       reader.readAsText(file, "UTF-8");
       reader.onload = event => {
-        this.text = event.target.result;
-        this.rearrangeArr();
+        //this.rearrangeArr(event.target.result);
+        this.startingArr = Array.from(event.target.result.split(/[\s ]+/));
+        this.startingArr.pop();
+        let params = this.startingArr.splice(0, 2);
+        this.k_arrays = parseInt(params[0]);
+        this.n_characters = parseInt(params[1]);
+        this.heapPermutation(
+          this.startingArr,
+          this.startingArr.length,
+          this.k_arrays
+        );
       };
       reader.onerror = event => {
         console.error(event);
       };
     },
-    rearrangeArr() {
-      this.startingArr = Array.from(this.text.split(/[\s ]+/));
-      this.startingArr.pop();
-      let params = this.startingArr.splice(0, 2);
-      this.k_arrays = parseInt(params[0]);
-      this.n_characters = parseInt(params[1]);
-      this.heapPermutation(
-        this.startingArr,
-        this.startingArr.length,
-        this.k_arrays
-      );
-    },
+    // rearrangeArr(text) {
+    //   this.startingArr = Array.from(text.split(/[\s ]+/));
+    //   this.startingArr.pop();
+    //   let params = this.startingArr.splice(0, 2);
+    //   this.k_arrays = parseInt(params[0]);
+    //   this.n_characters = parseInt(params[1]);
+    //   this.heapPermutation(
+    //     this.startingArr,
+    //     this.startingArr.length,
+    //     this.k_arrays
+    //   );
+    // },
     heapPermutation(arr, size, n) {
       // if size becomes 1 then check for goal path with obtained permutation
-      if (size == 1) {    
+      if (size == 1) {
         this.willRobotComeBackToZero(arr.join(""));
       }
       for (let i = 0; i < size; i++) {
@@ -87,24 +96,32 @@ export default {
       let x = 0;
       let y = 0;
       for (let i = 0; i < pathString.length; i++) {
-        // If move is left or right, change direction
-        if (pathString[i] == "D") {
-          direction = (direction + 1) % 4;
-        } else if (pathString[i] == "L") {
-          direction = (4 + direction - 1) % 4;
-        } else if (pathString[i] == 'P'){
-           // If move is P, then  change x or y according to current direction if (pathString.charAt(i) == 'P') 
-          if (direction == 0) y++;
-          else if (direction == 1) x++;
-          else if (direction == 2) y--;
-          else x--; // direction == 3
+
+        switch (pathString[i]) {
+          case "D": direction = (direction + 1) % 4;
+            break;
+          case "L": direction = (4 + direction - 1) % 4;
+            break;
+          case "P": {
+            switch (direction) {
+              case 0: y++;
+                break;
+              case 1: x++;
+                break;
+              case 2: y--;
+                break;
+            default: x--;      
+            break;
+            }
+          }
+          break;
         }
       }
       if (x == 0 && y == 0) {
         this.combinationCounter += 1;
-        //console.log("WINNER STRING IS: " + pathString);   
+        //console.log("WINNER STRING IS: " + pathString);
       }
-    },
+    }
   }
 };
 </script>
