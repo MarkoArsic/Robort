@@ -1,5 +1,8 @@
 # project
-
+## Prerequisites
+```
+Node.js
+```
 ## Project setup
 ```
 npm install
